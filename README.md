@@ -1,7 +1,7 @@
 # Simon dice
 “Simon” (léase SAIMON) es un juego electrónico de memorización creado por Ralph Baer y Howard J. Morrison en 1978. Fue programado por Lenny Cope, y tuvo mucha popularidad en la década del ‘80.
 
-El dispositivo crea una secuencia de tonos y luces requiriendo que el jugador (haciendo uso de su memoria visual y auditiva) repita dicha secuencia en el orden en que fue generada. Mientras el jugador lo haga correctamente, el dispositivo continúa agregando luces a la secuencia, tornándola progresivamente más larga y difícil de memorizar. Cuando el jugador yerra, el juego termina.
+El dispositivo crea una secuencia de tonos y luces requiriendo que el jugador (haciendo uso de su memoria visual y auditiva) repita dicha secuencia en el orden en que fue generada. Mientras el jugador lo haga correctamente, el dispositivo continúa agregando luces a la secuencia, tornándola progresivamente más larga y difícil de memorizar. Cuando el jugador erra, el juego termina.
 
 El dispositivo original tiene la forma de una corona circular dividida en cuatro cuadrantes. Cada cuadrante es un gran botón translúcido de un color diferente y tiene asociado un tono musical característico:
 
