@@ -1,4 +1,5 @@
 
+// imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -12,66 +13,72 @@ import java.awt.Graphics2D;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import javax.swing.Timer;
-
 import javax.swing.JFrame;
 
-public class SimonDice implements ActionListener, MouseListener {
+public class SimonDice implements ActionListener, MouseListener { // Implementamos el Listener para que escuhe
+  // este al tanto de los eventos del mouse
   
   public static SimonDice simon;
 
-  public static Renderer renderer;
+  public static Renderer renderer; // Instanciamos la clase renderer que es la encargada de renderizar la ventana
 
-  public static final int ANCHO = 700, ALTO = 700;
+  public static final int ANCHO = 700, ALTO = 700; // usamos final para asignar las constantes de ancho y alto de la ventana
 
-  // Variable para definir si está prendida la prendido
-  public static int prendido = 0, ticks, apagado = 0, indexSecuencia = 0, velocidad = 50; 
+  // Definimos variables que utilizaremos en el programa
+  public static int prendido = 0, ticks, apagado = 0, indexSecuencia = 0, velocidad = 100; 
 
   // Variable para saber si la secuencia está creada
   public static boolean crearSecuencia = true;
 
-  // Array con la secuencia random
+  // Declaramos el array que se rellenara con la secuencia
   public ArrayList<Integer> secuencia;
 
   // variable para saber si perdimos
   private boolean gameOver;
 
-  // Creamos 
+  // Declaramos la clase random
   public Random random;
 
-  // Creamos los objetos de audio de los diferentes colores
+  // Instanceamos la clase reproductor para poder acceder a los diferentes audios
   ReproducirAudio reproductor = new ReproducirAudio();
 
-
-
+  // Constructor
   public SimonDice() {
   
+    // Instanceamos la clase Jframe en frame que corresponde al espacio de la ventana
     JFrame frame = new JFrame("Simon Dice");
-    // Timer timer = new Timer(1000, this);
+
     Timer timer;
     
     renderer = new Renderer();
 
     // Seteamos caracteristicas de la ventana
     frame.setSize(ANCHO , ALTO); // Revisar esto, aumentar en la constante y no sumar ahora
-    frame.setVisible(true);
-    frame.add(renderer);
-    frame.addMouseListener(this);
-    frame.setResizable(false);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setVisible(true); // visivilidad de la ventana
+    frame.add(renderer); // le pasamos el componente renderer para indicarle que debemos renderizar
+    frame.addMouseListener(this); // le agregamos el listener para que esté escuchando que ocurre en this, this hace referencia
+    // a la propia clase SimonDice
+    frame.setResizable(false); // desactivamos la reecalabilidad ya que nuestro programa no tiene diseño responsive
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Accedemos a la constante de EXIT de la clase JFrame para poder
+    // cerrar la ventana
+    
+    start(); // Ejecutamos la función start para que se cree el arreglo con la secuencia
+
+    // System.out.println(velocidad(10));
+    // System.out.println(velocidad(20));
+    // System.out.println(velocidad(100));
 
     
-    start();
-
-    
-    timer = new Timer(20, this);
-    timer.start();
+    timer = new Timer(1, this); // Instanciamos el timer que ejecutará de forma repetida (dependiendo el delay indicado)
+    // el código
+    timer.start(); // indicamos que inicie el timer
     
     
   }
 
   // Método que rellena la secuencia
   public void start() {
-    random = new Random();
+    random = new Random(); // se crea 
 
     secuencia = new ArrayList<Integer>();
     indexSecuencia = 0;
@@ -80,7 +87,8 @@ public class SimonDice implements ActionListener, MouseListener {
     ticks = 0;
   }
 
-  public static void main(String[] args){
+  // Clase de punto de entrada del programa
+  public static void main(String[] args) throws IOException{
     simon = new SimonDice();
   }
 
@@ -189,20 +197,33 @@ public class SimonDice implements ActionListener, MouseListener {
     if (gameOver)
 		{
       final BufferedImage image = ImageIO.read(new File("./imagen/repetir.png"));
+      g.setColor(Color.RED);
+      g.setFont(new Font("Arial", 1, 30));
+			g.drawString("GAME OVER", 257, 295);
       g.setColor(Color.WHITE);
-      g.setFont(new Font("Arial", 1, 50));
-			g.drawString("GAME OVER", 300, 310);
-      g.drawImage(image, null, 300, 310);
+      g.setFont(new Font("Arial", 1, 22));
+      g.drawString("Niveles completados", 245, 330);
+      g.setColor(Color.RED);
+      g.setFont(new Font("Arial", 1, 40));
+      g.drawString(""+(secuencia.size() - 1), ANCHO / 2 - 12, 380);
+      g.drawImage(image, null, 325, 405);
 		}
 		else
 		{
 			g.drawString("Nivel: " + secuencia.size(), 275, 310);
 		}
-
   
   }
 
-
+  public int velocidad(int cantidadDeBotones) {
+    //1/(LOG10(10*N^2))
+    // double velocidadIncial = 1;
+    
+    // return velocidadIncial / Math.log10(10*(cantidadDeBotones*cantidadDeBotones));
+    double velocidadIncial = 100;
+    
+    return (int)(velocidadIncial / Math.log10(10*(cantidadDeBotones*cantidadDeBotones)));
+  }
   
   // Metodos para aplicar a la detección del mouse
   @Override
@@ -236,15 +257,25 @@ public class SimonDice implements ActionListener, MouseListener {
           reproductor.reproLuz(prendido);
           // AudioRojo.play();
           indexSecuencia++;
+          velocidad = velocidad(secuencia.size()); // aumento la velocidad con la función de velocidad
         } else {
           // reproducimos el audio de GAMEOVER
           reproductor.reproGameOver();
           gameOver = true;
         }
-      } else if (gameOver) {
+      }
+    }
+
+    if (gameOver) {
+      System.out.print("pos x :" + x);
+      System.out.print("pos y :" + y);
+      if (x > 314 && x < 385 && y > 424 && y < 491) {
+        // System.out.print("Entro en el repetir");
         start();
+
         gameOver = false;
       }
+      
     }
   }
 
