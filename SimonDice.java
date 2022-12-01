@@ -18,16 +18,19 @@ public class SimonDice implements ActionListener, MouseListener {
 
   public static Renderer renderer;
 
-  public static final int WIDTH = 700, HEIGHT = 700;
+  public static final int ANCHO = 700, ALTO = 700;
 
-  // Variable para definir si está prendida la luz
-  public static int luz = 0, ticks, oscuro, indexSecuencia; 
+  // Variable para definir si está prendida la prendido
+  public static int prendido = 0, ticks, apagado = 0, indexSecuencia = 0; 
 
   // Variable para saber si la secuencia está creada
-  public static boolean secuenciaCreada = true;
+  public static boolean crearSecuencia = true;
 
   // Array con la secuencia random
   public ArrayList<Integer> secuencia;
+
+  // variable para saber si perdimos
+  private boolean gameOver;
 
   // Creamos 
   public Random random;
@@ -35,12 +38,13 @@ public class SimonDice implements ActionListener, MouseListener {
   public SimonDice() {
   
     JFrame frame = new JFrame("Simon Dice");
-    Timer timer = new Timer(20, this);
+    // Timer timer = new Timer(1000, this);
+    Timer timer;
     
     renderer = new Renderer();
 
     // Seteamos caracteristicas de la ventana
-    frame.setSize(WIDTH , HEIGHT); // Revisar esto, aumentar en la constante y no sumar ahora
+    frame.setSize(ANCHO , ALTO); // Revisar esto, aumentar en la constante y no sumar ahora
     frame.setVisible(true);
     frame.add(renderer);
     frame.addMouseListener(this);
@@ -49,7 +53,10 @@ public class SimonDice implements ActionListener, MouseListener {
 
     start();
 
+    
+    timer = new Timer(24, this);
     timer.start();
+    
     
   }
 
@@ -58,47 +65,54 @@ public class SimonDice implements ActionListener, MouseListener {
     random = new Random();
 
     secuencia = new ArrayList<Integer>();
+    indexSecuencia = 0;
+    apagado = 2;
+    prendido = 0;
+    ticks = 0;
   }
 
   public static void main(String[] args) {
     simon = new SimonDice();
   }
 
+  // Sección que se ejecuta continuamente cada vez que se lo indica al timer
   @Override
   public void actionPerformed(ActionEvent event) {
 
     ticks++;
-    if (ticks % 20 == 0) { // sabemos que es un segundo
-      if(luz != 0 && !secuenciaCreada) {
-        if (secuencia.get(indexSecuencia) == luz) {
-          if (indexSecuencia >= secuencia.size() - 1) {
-            secuenciaCreada = true;
-            indexSecuencia = 0; // Una vez que confirmamos que son iguales reseteamos el valor
-          } else if (secuencia.get(indexSecuencia) == luz) {
-            indexSecuencia++;
-          }
-          luz = 0;
-        }
-      } else {
-        luz = 0;
+    System.out.println(ticks);
+
+    // Contabiliza
+    if (ticks % 24 == 0) {
+      prendido = 0;
+      if (apagado >= 0){
+          apagado--;
       }
-      if (secuenciaCreada)
-        if(oscuro <= 0) {
-          if (indexSecuencia >= secuencia.size()){
-            luz = random.nextInt(4) + 1;
-            secuencia.add(luz);
-            // System.out.println("arreglo de colores" + secuencia);
+    }
+      if (crearSecuencia) {
+        if(apagado <= 0) {
+          if (indexSecuencia == secuencia.size()){
+            prendido = random.nextInt(4) + 1;
+            secuencia.add(prendido);
+            System.out.println("arreglo de colores" + secuencia);
             indexSecuencia = 0;
-            secuenciaCreada = false;
+            crearSecuencia = false;
           } else {
-            luz = secuencia.get(indexSecuencia);
+            // Si no agregamos ninguno más, iluminamos el correspondiente y vamos iluminando los demás
+            prendido = secuencia.get(indexSecuencia);
             indexSecuencia++;
           }
-          oscuro = 2;
-        } else {
-          oscuro--;
+          apagado = 2;
         }
-    }
+      } else if(indexSecuencia == secuencia.size()) {
+        crearSecuencia = true;
+        indexSecuencia = 0;
+        apagado = 2;
+      }
+    
+
+    // Si el último número coincide con el el ingresado por el usuario se añade uno más
+    // Al arreglo
 
 
     // pinta cada frame del juego de forma continua
@@ -118,35 +132,35 @@ public class SimonDice implements ActionListener, MouseListener {
     Color azulApagado = new Color(10, 62, 112);
     Color grisTopo = new Color(26, 26, 26);
 
-    // Le decimos al programa que si la luz es 1 entonces la pinte de un verde 
+    // Le decimos al programa que si la prendido es 1 entonces la pinte de un verde 
     // más claro
-    if (luz == 1) {
+    if (prendido == 1) {
       g.setColor(verdeIluminado.brighter());
     } else {
       g.setColor(verdeApagado);
     }
-    g.fillRect(0, 0, WIDTH / 2, HEIGHT / 2);
+    g.fillRect(0, 0, ANCHO / 2, ALTO / 2);
 
-    if (luz == 2) {
+    if (prendido == 2) {
       g.setColor(rojoIluminado.brighter());
     } else {
       g.setColor(rojoApagado);
     }
-    g.fillRect(WIDTH / 2, 0, WIDTH / 2, HEIGHT / 2);
+    g.fillRect(ANCHO / 2, 0, ANCHO / 2, ALTO / 2);
 
-    if (luz == 3) {
+    if (prendido == 3) {
       g.setColor(amarilloIluminado.brighter());
     } else {
       g.setColor(amarilloApagado);
     }
-    g.fillRect(0, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
+    g.fillRect(0, ALTO / 2, ANCHO / 2, ALTO / 2);
 
-    if (luz == 4) {
+    if (prendido == 4) {
       g.setColor(azulIluminado.brighter());
     } else {
       g.setColor(azulApagado);
     }
-    g.fillRect(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
+    g.fillRect(ANCHO / 2, ALTO / 2, ANCHO / 2, ALTO / 2);
 
     g.setColor(grisTopo);
     g.fillRoundRect(225, 225, 250, 250, 250, 250);
@@ -155,35 +169,72 @@ public class SimonDice implements ActionListener, MouseListener {
     g.setFont(new Font("Arial", 1, 50));
     g.drawString(indexSecuencia + "/" + secuencia.size(), 300, 310);
 
+
+    if (gameOver)
+		{
+			g.drawString(":(", 300, 310);
+		}
+		else
+		{
+			g.drawString(indexSecuencia + "/" + secuencia.size(), 300, 310);
+		}
+
   
   }
 
   // Metodos para aplicar a la detección del mouse
   @Override
   public void mouseClicked(MouseEvent e) {
-    // g.fillRect(0, 0, WIDTH / 2, HEIGHT / 2);
-    // g.fillRect(WIDTH / 2, 0, WIDTH / 2, HEIGHT / 2);
-    // g.fillRect(0, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
-    // g.fillRect(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
+    // g.fillRect(0, 0, ANCHO / 2, ALTO / 2);
+    // g.fillRect(ANCHO / 2, 0, ANCHO / 2, ALTO / 2);
+    // g.fillRect(0, ALTO / 2, ANCHO / 2, ALTO / 2);
+    // g.fillRect(ANCHO / 2, ALTO / 2, ANCHO / 2, ALTO / 2);
 
     // Estas variables nos entregan la posición del mouse en el eje x e y
     int x = e.getX(), y = e.getY();
 
-    if (!secuenciaCreada) {
-      if (x > 0 && x < WIDTH / 2 && y > 0 && y < HEIGHT / 2) {
-        luz = 1;
+    if (!crearSecuencia && !gameOver){
+      if (x > 0 && x < ANCHO / 2 && y > 0 && y < ALTO / 2) {
+        prendido = 1;
         ticks = 1;
-      } else if (x > WIDTH / 2 && x < WIDTH && y > 0 && y < HEIGHT / 2) {
-        luz = 2;
+      } else if (x > ANCHO / 2 && x < ANCHO && y > 0 && y < ALTO / 2) {
+        prendido = 2;
         ticks = 1;
-      } else if (x > 0 && x < WIDTH / 2 && y > HEIGHT / 2 && y < HEIGHT) {
-        luz = 3;
+      } else if (x > 0 && x < ANCHO / 2 && y > ALTO / 2 && y < ALTO) {
+        prendido = 3;
         ticks = 1;
-      } else if (x > WIDTH / 2 && x < WIDTH && y > HEIGHT / 2 && y < HEIGHT) {
-        luz = 4;
+      } else if (x > ANCHO / 2 && x < ANCHO && y > ALTO / 2 && y < ALTO) {
+        prendido = 4;
         ticks = 1;
       }
+
+      if (prendido != 0) {
+        if (secuencia.get(indexSecuencia) == prendido) {
+          indexSecuencia++;
+        } else {
+          gameOver = true;
+        }
+      } else if (gameOver) {
+        start();
+        gameOver = false;
+      }
     }
+
+    // if (!crearSecuencia) {
+    //   if (x > 0 && x < ANCHO / 2 && y > 0 && y < ALTO / 2) {
+    //     prendido = 1;
+    //     ticks = 1;
+    //   } else if (x > ANCHO / 2 && x < ANCHO && y > 0 && y < ALTO / 2) {
+    //     prendido = 2;
+    //     ticks = 1;
+    //   } else if (x > 0 && x < ANCHO / 2 && y > ALTO / 2 && y < ALTO) {
+    //     prendido = 3;
+    //     ticks = 1;
+    //   } else if (x > ANCHO / 2 && x < ANCHO && y > ALTO / 2 && y < ALTO) {
+    //     prendido = 4;
+    //     ticks = 1;
+    //   }
+    // }
 
   }
 
