@@ -6,7 +6,6 @@ import java.awt.Graphics;
 
 public class Renderer extends JPanel {
 
-  // se aplica este override porque la ventana se dibujaba 2 veces
   @Override
   protected void paintComponent(Graphics g) {
     try {
@@ -22,13 +21,4 @@ public class Renderer extends JPanel {
     }
   }
 
-//   try {
-//     BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));    
-//     String userInput;    
-//     while ((userInput = stdIn.readLine()) != null) {
-//         System.out.println(userInput);
-//     }
-// } catch(IOException ie) {
-//     ie.printStackTrace();
-// }   
 }
