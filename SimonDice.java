@@ -2,12 +2,15 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 import java.awt.event.*;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Font;
-
+import java.awt.image.BufferedImage;
 import javax.swing.Timer;
 
 import javax.swing.JFrame;
@@ -21,7 +24,7 @@ public class SimonDice implements ActionListener, MouseListener {
   public static final int ANCHO = 700, ALTO = 700;
 
   // Variable para definir si está prendida la prendido
-  public static int prendido = 0, ticks, apagado = 0, indexSecuencia = 0; 
+  public static int prendido = 0, ticks, apagado = 0, indexSecuencia = 0, velocidad = 50; 
 
   // Variable para saber si la secuencia está creada
   public static boolean crearSecuencia = true;
@@ -34,6 +37,11 @@ public class SimonDice implements ActionListener, MouseListener {
 
   // Creamos 
   public Random random;
+
+  // Creamos los objetos de audio de los diferentes colores
+  ReproducirAudio reproductor = new ReproducirAudio();
+
+
 
   public SimonDice() {
   
@@ -51,10 +59,11 @@ public class SimonDice implements ActionListener, MouseListener {
     frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+    
     start();
 
     
-    timer = new Timer(24, this);
+    timer = new Timer(20, this);
     timer.start();
     
     
@@ -66,12 +75,12 @@ public class SimonDice implements ActionListener, MouseListener {
 
     secuencia = new ArrayList<Integer>();
     indexSecuencia = 0;
-    apagado = 2;
+    apagado = 1;
     prendido = 0;
     ticks = 0;
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args){
     simon = new SimonDice();
   }
 
@@ -80,10 +89,10 @@ public class SimonDice implements ActionListener, MouseListener {
   public void actionPerformed(ActionEvent event) {
 
     ticks++;
-    System.out.println(ticks);
+    // System.out.println(ticks);
 
     // Contabiliza
-    if (ticks % 24 == 0) {
+    if (ticks % velocidad == 0) {
       prendido = 0;
       if (apagado >= 0){
           apagado--;
@@ -94,20 +103,26 @@ public class SimonDice implements ActionListener, MouseListener {
           if (indexSecuencia == secuencia.size()){
             prendido = random.nextInt(4) + 1;
             secuencia.add(prendido);
+            // ACÁ VA AUDIO
+            
+            reproductor.reproLuz(prendido);
             System.out.println("arreglo de colores" + secuencia);
             indexSecuencia = 0;
             crearSecuencia = false;
           } else {
             // Si no agregamos ninguno más, iluminamos el correspondiente y vamos iluminando los demás
             prendido = secuencia.get(indexSecuencia);
+            // ACÁ VA AUDIO
+            // AudioRojo.play();
+            reproductor.reproLuz(prendido);
             indexSecuencia++;
           }
-          apagado = 2;
+          apagado = 1;
         }
       } else if(indexSecuencia == secuencia.size()) {
         crearSecuencia = true;
         indexSecuencia = 0;
-        apagado = 2;
+        apagado = 1;
       }
     
 
@@ -119,8 +134,10 @@ public class SimonDice implements ActionListener, MouseListener {
     renderer.repaint();
   }
 
+
+
   // vamos a realizar los renderizados
-  public void paint(Graphics2D g) {
+  public void paint(Graphics2D g)  throws IOException {
     // Creamos colores personalizados
     Color verdeIluminado = new Color(57, 202, 73);
     Color verdeApagado = new Color(30, 107, 39);
@@ -166,22 +183,27 @@ public class SimonDice implements ActionListener, MouseListener {
     g.fillRoundRect(225, 225, 250, 250, 250, 250);
 
     g.setColor(Color.WHITE);
-    g.setFont(new Font("Arial", 1, 50));
-    g.drawString(indexSecuencia + "/" + secuencia.size(), 300, 310);
+    g.setFont(new Font("Arial", 1, 40));
 
 
     if (gameOver)
 		{
-			g.drawString(":(", 300, 310);
+      final BufferedImage image = ImageIO.read(new File("./imagen/repetir.png"));
+      g.setColor(Color.WHITE);
+      g.setFont(new Font("Arial", 1, 50));
+			g.drawString("GAME OVER", 300, 310);
+      g.drawImage(image, null, 300, 310);
 		}
 		else
 		{
-			g.drawString(indexSecuencia + "/" + secuencia.size(), 300, 310);
+			g.drawString("Nivel: " + secuencia.size(), 275, 310);
 		}
 
   
   }
 
+
+  
   // Metodos para aplicar a la detección del mouse
   @Override
   public void mouseClicked(MouseEvent e) {
@@ -210,8 +232,13 @@ public class SimonDice implements ActionListener, MouseListener {
 
       if (prendido != 0) {
         if (secuencia.get(indexSecuencia) == prendido) {
+          // ACÁ VA AUDIO
+          reproductor.reproLuz(prendido);
+          // AudioRojo.play();
           indexSecuencia++;
         } else {
+          // reproducimos el audio de GAMEOVER
+          reproductor.reproGameOver();
           gameOver = true;
         }
       } else if (gameOver) {
@@ -219,23 +246,6 @@ public class SimonDice implements ActionListener, MouseListener {
         gameOver = false;
       }
     }
-
-    // if (!crearSecuencia) {
-    //   if (x > 0 && x < ANCHO / 2 && y > 0 && y < ALTO / 2) {
-    //     prendido = 1;
-    //     ticks = 1;
-    //   } else if (x > ANCHO / 2 && x < ANCHO && y > 0 && y < ALTO / 2) {
-    //     prendido = 2;
-    //     ticks = 1;
-    //   } else if (x > 0 && x < ANCHO / 2 && y > ALTO / 2 && y < ALTO) {
-    //     prendido = 3;
-    //     ticks = 1;
-    //   } else if (x > ANCHO / 2 && x < ANCHO && y > ALTO / 2 && y < ALTO) {
-    //     prendido = 4;
-    //     ticks = 1;
-    //   }
-    // }
-
   }
 
   @Override
